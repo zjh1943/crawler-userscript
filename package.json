@@ -1,0 +1,29 @@
+{
+  "name": "crawler-extension",
+  "version": "1.0.0",
+  "description": "淘宝直通车插件",
+  "main": "src/index.user.js",
+  "scripts": {
+    "dev": "ws --https --port 9001",
+    "build": "node build.js",
+    "test": "jest"
+  },
+  "author": "Jonathan Zhu",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/cli": "^7.8.0",
+    "@babel/core": "^7.8.0",
+    "@babel/plugin-proposal-class-properties": "^7.8.0",
+    "@babel/preset-env": "^7.8.2",
+    "babelify": "^10.0.0",
+    "browserify": "^16.5.0",
+    "dataframe-js": "^1.4.3",
+    "fs": "0.0.1-security",
+    "jest": "^24.9.0",
+    "path": "^0.12.7"
+  },
+  "dependencies": {
+    "jquery-slim": "^3.0.0",
+    "later": "^1.2.0"
+  }
+}
