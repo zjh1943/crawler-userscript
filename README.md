@@ -10,7 +10,27 @@
 
 # 安装
 
-还没有时间把这个爬虫库做成一个第三方库，大家可以直接下载代码来借鉴。
+还没有时间把这个爬虫库做成一个第三方库，大家可以直接`clone`代码来运行。
+
+下载代码：
+```sh
+git clone https://github.com/zjh1943/crawler-userscript.git
+```
+
+安装依赖库：
+```sh
+cd {project_root}
+npm i 
+```
+
+构建并启动服务：
+```sh
+npm run dev
+```
+这里会将构建好的`userscript`文件存储在`{project_root}/dist`文件夹，然后启动一个端口为 9001 的 HTTP 服务。
+
+如果要在 Tampermonkey 中安装脚本，则可以直接将 `{project_root}/dist/ant.user.js`文件内容拷贝过去即可。
+如果在写代码时需要更新以调试，则在 Tampermonkey 中设置脚本更新地址为：`https://localhost:9001/dist/ant.user.js` 即可。这样每次点击「检查更新」，就会自动更新最新的代码。
 
 # 爬虫使用方法
 
@@ -27,7 +47,7 @@ crawler = new Crawler({
                 return !!url && !!url.match(/(https:\/\/subway.simba.taobao.com)?\/?(#\!\/manage\/adgroup\/detail)(.*)/;
             },
             onPageReady: async () => {
-                // 网页已经加载完，在这里提取想要的数据。
+                // 网页已经加载完，在这里提取想要的数据，选择合适的方式保存数据。
             },
             getUrlsToAdd: () => {
                 // 从当前网页中找出需要加入爬虫队列的新的链接。
