@@ -29,8 +29,8 @@ npm run dev
 ```
 这里会将构建好的`userscript`文件存储在`{project_root}/dist`文件夹，然后启动一个端口为 9001 的 HTTP 服务。
 
-如果要在 Tampermonkey 中安装脚本，则可以直接将 `{project_root}/dist/ant.user.js`文件内容拷贝过去即可。
-如果在写代码时需要更新以调试，则在 Tampermonkey 中设置脚本更新地址为：`https://localhost:9001/dist/ant.user.js` 即可。这样每次点击「检查更新」，就会自动更新最新的代码。
+* 如果要在 Tampermonkey 中安装脚本，则可以直接将 `{project_root}/dist/ant.user.js`文件内容拷贝过去即可。
+* 如果在写代码时需要更新以调试，则在 Tampermonkey 中设置脚本更新地址为：`https://localhost:9001/dist/ant.user.js` 即可。这样每次点击「检查更新」，就会自动更新最新的代码。
 
 # 爬虫使用方法
 
