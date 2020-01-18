@@ -42,6 +42,7 @@ crawler = new Crawler({
     ],
 }
 
+crawler.start();
 ```
 
 
