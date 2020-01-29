@@ -44,6 +44,15 @@ async function waitUntil( fn, maxWait = 10000, interval = 1000) {
     return check(fn, Math.ceil(maxWait/interval), interval)
 }
 
+async function delayDo( fn, delay = 1000) {
+    return new Promise( (resolve, _) => {
+        setTimeout( () => {
+            fn();
+            resolve();
+        }, delay)
+    })
+}
+
 module.exports = {
-    retry, check, waitUntil,
+    retry, check, waitUntil, delayDo
 }

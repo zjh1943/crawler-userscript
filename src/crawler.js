@@ -36,6 +36,8 @@ class Page {
  * @property  {number} [retryCount=3] 网页加载未成功时，最多重试次数，
  * @property  {number} [operateInterval=1000] 每次操作间隔时间 
  * @property  {function} [onCrawlComplete] `() => void`
+ * @property  {function} [onPageStart] `() => void`
+ * @property  {function} [onPageComplete] `() => void`
  * @property  {number} [maxWait=8000] 每次加载完网页后停留时间 
  * @property  {number} [minWait=3000] 每次加载完网页后停留时间 
  */
@@ -73,11 +75,15 @@ class Crawler {
         }
     }
 
-    isToBeClear = false;
+    isCrawling = false; // 一次抓取正在进行中。
+    isPause = false; // 一次抓取被暂停。稍后可以被恢复。
+    isToBeClear = false; // 此次抓取将要被停止。
+
     clear = () => {
         this.urlList = [];
         this.crawledUrlSet.clear();
         this.isPause = false;
+        this.isCrawling = false;
         this.isToBeClear = true;
     }
 
@@ -86,10 +92,19 @@ class Crawler {
         this.urlList = [this.options.startPageURL];
         this.isPause = false;
         this.isToBeClear = false;
+        this.isCrawling = true;
         return this._start()
     }
 
-    isPause = false;
+    restoreFromSavedState = async (urlList, crawledUrlSet) => {
+        this.urlList = urlList;
+        this.crawledUrlSet = crawledUrlSet;
+        this.isCrawling = true;
+        this.isPause = false;
+        this.isToBeClear = false;
+        return this._start();
+    }
+
     pause = () => {
         log.debug('_pause: this.urlList:', this.urlList);
         this.isPause = true;
@@ -103,25 +118,28 @@ class Crawler {
 
     _start = async () => {
         log.debug('_start: begin. this.urlList:', this.urlList);
-        const { minWait, maxWait } = this.options;
+        const { minWait, maxWait, onPageStart, onPageComplete, onCrawlComplete } = this.options;
         const timeToWait = Math.floor(Math.random() * (maxWait - minWait)) + minWait;
 
         if (this.urlList.length > 0) {
             const url = this.urlList.splice(0, 1)[0];
             this.currUrl = url;
             this.crawledUrlSet.add(url);
+            if (onPageStart) onPageStart(url);
             return this._crawlPage(url)
                 .catch((reason) => {
                     /** 如果中间失败了，还是继续下一波，不要影响下一条任务 */
                     log.error('_start: crawl page fail:', url, ', reason:', reason);
                 })
                 .then(() => new Promise((resolve, _) => {
+                    this.currUrl = null;
+                    if (onPageComplete) onPageComplete(url);
                     log.debug('_stat: wait time = ', timeToWait);
                     setTimeout(resolve, timeToWait);
                 }))
                 .then(() => {
-                    this.currUrl = null;
                     if (this.isToBeClear) {
+                        if (onCrawlComplete) onCrawlComplete();
                         return Promise.reject(Crawler.QUIT_REASON_CLEAR);
                     } else if (this.isPause) {
                         return Promise.reject(Crawler.QUIT_REASON_PAUSE);
@@ -129,10 +147,14 @@ class Crawler {
                         return this._start();
                     }
                 })
+        } else {
+            this.isCrawling = false;
+            if (onCrawlComplete) onCrawlComplete();
         }
     }
 
     _openPageOnce = async (url, isPageReady) => {
+        log.debug('_openPageOnce:', url);
         return this.options.gotoUrl(url)
             .then(() => {
                 return waitUntil(isPageReady, this.options.maxWait)
@@ -149,7 +171,7 @@ class Crawler {
         return fn(...args)
             .catch(() => {
                 if (needLogin()) {
-                    return self.login()
+                    return this.login()
                         .then(() => fn(...args))
                 } else {
                     return Promise.reject()
@@ -183,25 +205,24 @@ class Crawler {
 
     login = async () => {
         log.debug('login');
-        return new Promise((resolve, reject) => {
-            const { login, maxWait } = this.options;
-            if (!login) resolve();
-            else {
-                const { loginPageURL, isLoginPageReady, isLoginSuccess, doLogin } = this.options.login;
+        const { login, maxWait } = this.options;
+        if (!login) return;
+        else {
+            const { loginPageURL, isLoginPageReady, isLoginSuccess, doLogin } = login;
 
-                var p = null;
-                if (!isLoginPageReady()) {
-                    p = doLogin();
-                } else {
-                    p = this._openPageOnce(loginPageURL, isLoginPageReady).then(doLogin);
-                }
-                p.then(() => waitUntil(isLoginSuccess, maxWait))
-                    .then(resolve).catch(reject)
-
+            var p = null;
+            if (isLoginPageReady()) {
+                log.debug('login: isLoginPageReady.');
+                p = doLogin();
+            } else {
+                log.debug('login: needReload');
+                p = this._openPageOnce(loginPageURL, isLoginPageReady).then(doLogin);
             }
-        })
+            return p.then(() => waitUntil(isLoginSuccess, maxWait))
+        }
     }
 }
+
 
 
 

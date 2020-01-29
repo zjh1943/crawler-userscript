@@ -1,31 +1,35 @@
 'use strict';
 
+
 const log = require('./logger');
 const { Crawler } = require('./crawler');
-const { waitUntil } = require('./retry');
+const { delayDo } = require('./retry');
 const later = require('later');
+const crawlerSaver = require('./crawlerSaver');
+const schedulerSaver = require('./crawlerSchedulerSaver');
+
 
 function setupConfig() {
     GM_config.init(
         {
-            'id': 'Taobao_Crawler_Config', 
+            'id': 'Taobao_Crawler_Config',
             'fields':
             {
                 hidden1: {
                     section: ['操作等待时间', '每加载一个网页后，等待一些时间，防止访问过快而被淘宝官方察觉.'],
                     type: 'hidden',
                 },
-                'minWait': 
+                'minWait':
                 {
-                    'label': '最少等待时间（秒）', 
-                    'type': 'int', 
-                    'default': '3' 
+                    'label': '最少等待时间（秒）',
+                    'type': 'int',
+                    'default': '3'
                 },
-                'maxWait': 
+                'maxWait':
                 {
-                    'label': '最长等待时间（秒）', 
-                    'type': 'int', 
-                    'default': '5' 
+                    'label': '最长等待时间（秒）',
+                    'type': 'int',
+                    'default': '5'
                 },
                 hidden2: {
                     'section': ['定时器配置', '配置方法请参考这里：<a href="https://bunkat.github.io/later/parsers.html#text" target=”_blank”>配置帮助</a>'],
@@ -64,38 +68,84 @@ function setupConfig() {
 }
 
 
+const loginOptions = {
+    loginPageURL: 'https://subway.simba.taobao.com/indexnew.jsp',
+    // mx-view="common-home/views/pages/home/login"
+    needLogin: () => {
+        const mainWindow = $('div.home-body iframe').length > 0;
+
+        let subWindow = $('#J_LoginBox .bd').length > 0;
+        if (subWindow) {
+            subWindow = $('#J_LoginBox .bd').css('display') !== 'none';
+        }
+        return mainWindow || subWindow;
+    },
+    isLoginPageReady: () => true,
+    isLoginSuccess: () => {
+        return $('#J_LoginBox .bd').css('display') === 'none';
+    },
+    doLogin: async () => {
+        await delayDo(() => {
+            const account = GM_config.get('taobaoAccount');
+            log.debug('doLogin. type account: ', account);
+            $('#J_StaticForm input#TPL_username_1').val(account);
+        }, 1000)
+
+        await delayDo(() => {
+            const pwd = GM_config.get('taobaoPWD');
+            log.debug('doLogin. type pwd: ', pwd)
+            $('#J_StaticForm input#TPL_password_1').val(pwd);
+        }, 1000)
+
+        await delayDo(() => {
+            log.debug('doLogin. submit')
+            $('button#J_SubmitStatic').click();
+        }, 2000)
+
+    }
+};
+
 function createCrawler() {
     const options = {
         startPageURL: 'https://subway.simba.taobao.com/#!/manage/campaign/index',
         // startPageURL: 'https://subway.simba.taobao.com/#!/manage/campaign/detail?campaignId=40195486&start=2020-01-14&end=2020-01-14',
-        minWait: (GM_config.get('minWait') || 3)*1000,
-        maxWait: (GM_config.get('maxWait') || 5)*1000,
-        gotoUrl: async (url) => { location.href = url },
+        minWait: (GM_config.get('minWait') || 3) * 1000,
+        maxWait: (GM_config.get('maxWait') || 5) * 1000,
+        gotoUrl: async (url) => {
+            log.debug('gotoUrl:', url);
+            location.href = url
+        },
         pageList: [
             require('./CampaignsPage'),
             require('./AdgroupsPage'),
             require('./KeywordsPage'),
         ],
+        login: loginOptions,
+        onPageStart: () => {
+            crawlerSaver.saveCrawler(currRunningCrawler);
+        },
+        onCrawlComplete: () => {
+            crawlerSaver.clearCrawler();
+        }
     }
     return new Crawler(options);
 }
 
 
-
 const menus = [
     {
         name: '启动定时抓取',
-        fn: startScheduler,
+        fn: startCrawlerScheduler,
         accessKey: 'start'
     },
     {
         name: '终止定时抓取',
-        fn: endScheduler,
+        fn: stopCrawlerScheduler,
         accessKey: 'end'
     },
     {
         name: '抓取一次',
-        fn: startScrawl,
+        fn: scrawlOnce,
         accessKey: 'once'
     },
     {
@@ -119,68 +169,108 @@ menus.forEach(m => {
     GM_registerMenuCommand(m.name, m.fn, m.accessKey);
 });
 
-function startScheduler(){
-    if(timer){
+
+function startCrawlerSchedulerByText(text) {
+    if (crawlerScheduler) {
         alert("爬虫正在进行中。请勿重复启动");
         return;
     }
-    const text = GM_config.get('scrawlScheduleText') || 'at 23:50 also every 1 hour between 1 and 23';
-    try{
+    try {
         const sched = later.parse.text(text);
-        timer = later.setInterval(startScrawl, sched);
-        log.debug('startScheduler: next 24 occurences: ', later.schedule(sched).next(24));
-    }catch{
+        schedulerSaver.saveCrawlerScheduler(text);
+        crawlerScheduler = later.setInterval(scrawlOnce, sched);
+        log.debug('startCrawlerScheduler: next 24 occurences: ', later.schedule(sched).next(24));
+    } catch{
         alert('定时器配置错误，请重新配置');
     }
 }
 
-function endScheduler(){
-    if(!timer){
+function startCrawlerScheduler() {
+    const text = GM_config.get('scrawlScheduleText') || 'at 23:50 also every 1 hour between 1 and 23';
+    startCrawlerSchedulerByText(text);
+}
+
+function stopCrawlerScheduler() {
+    schedulerSaver.clearCrawlerScheduler();
+    if (!crawlerScheduler) {
         alert("定时器尚未启动.");
         return;
     }
-    timer.clear();
-    timer = null;
+    crawlerScheduler.clear();
+    crawlerScheduler = null;
 }
 
-function startScrawl(){
-    if(crawler){
-        crawler.clear();
+function scrawlOnce() {
+    if (currRunningCrawler) {
+        currRunningCrawler.clear();
     }
-    crawler = createCrawler();
-    crawler.start().then(() => {
-        log.debug('startScrawl: crawler done.');
-    }).catch( e => {
-        log.debug('startScrawl: crawler quit with error: ', e);
+    currRunningCrawler = createCrawler();
+    currRunningCrawler.start().then(() => {
+        log.debug('scrawlOnce: crawler done.');
+    }).catch(e => {
+        log.debug('scrawlOnce: crawler quit with error: ', e);
     });
 }
 
-function downloadData(){
+function downloadData() {
     log.debug('downloadData:');
 }
 
-function clearData(){
+function clearData() {
     const { clear } = require('./db');
     clear();
 }
 
-function startDownloadScheduler(){
+function startDownloadScheduler() {
     const text = GM_config.get('downloadScheduleText') || 'at 23:58';
     log.debug('startDownloadScheduler: text:', text);
-    try{
+    try {
         const sched = later.parse.text(text);
         later.setInterval(downloadData, sched);
         log.debug('startDownloadScheduler: next 10 occurences: ', later.schedule(sched).next(10));
-    }catch (e) {
+    } catch (e) {
         log.error(e);
         alert('定时器配置错误，请重新配置');
     }
 }
 
-let timer = null;
-let crawler = null;
+let crawlerScheduler = null;
+let currRunningCrawler = null;
 
-setupConfig();
-later.date.localTime();
-startDownloadScheduler();
+window.onload = async () => {
+    setupConfig();
+    later.date.localTime();
 
+    // top window
+    if (window.top == window.self) {
+
+        log.debug('top window');
+        // 初始化
+
+        // 启动下载数据的调度器
+        startDownloadScheduler();
+
+        // 恢复调度器
+        schedulerSaver.restoreScrawlerScheduler(startCrawlerSchedulerByText);
+
+        // 恢复之前未完成的爬取任务
+        if (crawlerSaver.hasUnfinishedTask()) {
+            log.debug(`restore Unfinished Crawler`);
+
+            if (!loginOptions.needLogin()) {
+                currRunningCrawler = createCrawler();
+                crawlerSaver.restoreCrawler(currRunningCrawler);
+            }
+        }
+    } else { // inner window
+        log.debug('inner window');
+        // 判断是否是登陆页面
+        if (crawlerSaver.hasUnfinishedTask() && loginOptions.needLogin()) {
+            log.debug(`login`);
+            currRunningCrawler = createCrawler();
+            await currRunningCrawler.login();
+        }
+    }
+
+
+};

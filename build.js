@@ -16,7 +16,7 @@ browserify("./src/index.js")
         const templateCode = fs.readFileSync(path.join(__dirname, './src/template.user.js')).toString();
         var outputCode = templateCode.replace('/*{%code%}*/', contentCode);
         var timestamp = Date.now().toString();
-        timestamp = timestamp.substring(3, timestamp.length - 3);
+        timestamp = timestamp.substring(1, timestamp.length - 3);
         outputCode = outputCode.replace('{%timestamp%}', timestamp);
 
         fs.writeFileSync(path.join(__dirname, './dist/ant.user.js'), outputCode)
