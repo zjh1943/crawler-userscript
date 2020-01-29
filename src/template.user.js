@@ -12,6 +12,7 @@
 // @require      https://unpkg.com/dexie@latest/dist/dexie.js
 // @require      https://momentjs.com/downloads/moment.js
 // @require      https://cdn.bootcss.com/later/1.2.0/later-core.min.js
+// @require      https://unpkg.com/xlsx/dist/xlsx.full.min.js
 // @grant             unsafeWindow
 // @grant             GM_xmlhttpRequest
 // @grant             GM_setClipboard

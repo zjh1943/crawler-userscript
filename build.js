@@ -10,6 +10,7 @@ browserify("./src/index.js")
     })
     .bundle((err, buf) => {
         if (err) {
+            console.trace(err);
             throw err;
         }
         const contentCode = buf.toString();

@@ -44,7 +44,7 @@ async function parseData() {
     const productIds = urls.map(v => getParameterFromUrl(v, 'productId'));
     dataFrame = dataFrame.withColumn('宝贝ID', (_, index) => productIds[index]);
 
-    const timeStr = moment().format('yyyy-MM-DD hh:mm:ss');
+    const timeStr = moment().format('YYYY-MM-DD hh:mm:ss');
     dataFrame = dataFrame.withColumn('抓取时间', () => timeStr);
 
     const fetchSn = Date.now().toString();

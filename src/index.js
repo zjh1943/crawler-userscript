@@ -1,6 +1,7 @@
 'use strict';
 
 
+const DataFrame = dfjs.DataFrame;
 const log = require('./logger');
 const { Crawler } = require('./crawler');
 const { delayDo } = require('./retry');
@@ -212,13 +213,26 @@ function scrawlOnce() {
     });
 }
 
-function downloadData() {
+async function downloadData() {
     log.debug('downloadData:');
+
+    const { db } = require('./db');
+    const workbook = XLSX.utils.book_new();
+    const tables = ['campaigns_log', 'adgroups_log', 'keywords_log'];
+
+    for ( const name of tables ) {
+        const data = await db[name].toArray();
+        const sheet = XLSX.utils.json_to_sheet(data);
+        XLSX.utils.book_append_sheet(workbook, sheet, name);
+    }
+
+    const timeStr = moment().format('YYYY-MM-DD_hh-mm-ss');
+    XLSX.writeFile(workbook, `AntCrawler_${timeStr}.xls`)
 }
 
 function clearData() {
-    const { clear } = require('./db');
-    clear();
+    const DB = require('./db');
+    DB.clear();
 }
 
 function startDownloadScheduler() {
