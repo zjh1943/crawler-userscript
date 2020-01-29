@@ -67,7 +67,7 @@ const anchorFilter = (ele) => {
 
 const AdgroupsPage = {
     id: 'adgroupList',
-    shouldCrawl: (url) => {
+    triggerOnUrl: (url) => {
         return !!url && !!url.match(/(https:\/\/subway.simba.taobao.com)?\/?(#\!\/manage\/campaign\/detail)(.*)/);
     },
     getUrlsToAdd: createUrlGetter('a.ad-title', anchorFilter),

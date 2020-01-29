@@ -47,7 +47,7 @@ const anchorFilter = (ele) => {
 
 const CampaignsPage = {
     id: 'campaignList',
-    shouldCrawl: (url) => {
+    triggerOnUrl: (url) => {
         return !!url && !!url.match(/(https:\/\/subway.simba.taobao.com)?\/?(#\!\/manage\/campaign\/index)(.*)/);
     },
     getUrlsToAdd: createUrlGetter('.manage-common-table-container div.editor-content a', anchorFilter),

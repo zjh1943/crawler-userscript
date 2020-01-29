@@ -65,7 +65,7 @@ async function parseData() {
 const KeywordsPage = {
     id: 'keywordsList',
     onPageReady: parseData,
-    shouldCrawl: (url) => {
+    triggerOnUrl: (url) => {
         return !!url && !!url.match(/(https:\/\/subway.simba.taobao.com)?\/?(#\!\/manage\/adgroup\/detail)(.*)/);
     },
     getUrlsToAdd: () => [],

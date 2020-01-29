@@ -4,7 +4,7 @@ const log = require('./logger');
 
 class Page {
     id = '';
-    shouldCrawl(url) { return false; }
+    triggerOnUrl(url) { return false; }
     isPageReady() { return false; }
     onPageReady() { return true; }
     getUrlsToAdd() { return []; }
@@ -12,7 +12,7 @@ class Page {
 /**
  * @typedef {Object} ResourceOption
  * @property {string} id
- * @property {function} shouldCrawl 网址是否需要抓取，`(url) => boolean`
+ * @property {function} triggerOnUrl 当前配置适用于哪个 URL，`(url) => boolean`
  * @property {function} isPageReady 网页是否加载完全，`(document) => boolean`
  * @property {function} onPageReady 网页已经加载成功，需要在这里处理数据，或者执行某些操作。`(document) => boolean`
  * @property {function} getUrlsToAdd 当前网页有哪些链接该加入队列 `(document) => string[]`
@@ -30,7 +30,7 @@ class Page {
  * @typedef {Object} CrawlerOption 
  * @property  {string} startPageURL
  * @property  {function} gotoUrl `(url) => Promise`
- * @property  {ResourceOption[]} resourceList 资源列表
+ * @property  {ResourceOption[]} pageList 资源列表
  * @property  {LoginOption} [login] 登陆配置，如果不需要登陆，可以不设置
  * @property  {number} [maxWait=10000] 加载网页时最长加载时间，单位：ms，
  * @property  {number} [retryCount=3] 网页加载未成功时，最多重试次数，
@@ -52,7 +52,7 @@ class Crawler {
      */
     options = {
         startPageURL: '',
-        resourceList: [],
+        pageList: [],
         maxWait: 10000,
         retryCount: 3,
         operateInterval: 1000,
@@ -60,7 +60,8 @@ class Crawler {
         maxWait: 8000,
     }
 
-    urlList = []
+    urlList = []; // 将要抓取的 URL
+    currUrl = null; // 正在抓取的 URL
     crawledUrlSet = new Set();
 
     /**
@@ -107,6 +108,7 @@ class Crawler {
 
         if (this.urlList.length > 0) {
             const url = this.urlList.splice(0, 1)[0];
+            this.currUrl = url;
             this.crawledUrlSet.add(url);
             return this._crawlPage(url)
                 .catch((reason) => {
@@ -118,6 +120,7 @@ class Crawler {
                     setTimeout(resolve, timeToWait);
                 }))
                 .then(() => {
+                    this.currUrl = null;
                     if (this.isToBeClear) {
                         return Promise.reject(Crawler.QUIT_REASON_CLEAR);
                     } else if (this.isPause) {
@@ -157,9 +160,9 @@ class Crawler {
 
     _openPageAndLoginIfNeed = async (url) => {
         log.debug('_openPageAndLoginIfNeed: ', url)
-        const { resourceList } = this.options;
-        const resource = resourceList.find((r) => r.shouldCrawl(url));
-        const { isPageReady, onPageReady, getUrlsToAdd } = resource;
+        const { pageList } = this.options;
+        const page = pageList.find((r) => r.triggerOnUrl(url));
+        const { isPageReady, onPageReady, getUrlsToAdd } = page;
 
         return this._runFunctionAndLoginIfNeed(this._openPageOnce, url, isPageReady)
             .then(async () => {

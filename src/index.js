@@ -71,7 +71,7 @@ function createCrawler() {
         minWait: (GM_config.get('minWait') || 3)*1000,
         maxWait: (GM_config.get('maxWait') || 5)*1000,
         gotoUrl: async (url) => { location.href = url },
-        resourceList: [
+        pageList: [
             require('./CampaignsPage'),
             require('./AdgroupsPage'),
             require('./KeywordsPage'),

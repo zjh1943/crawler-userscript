@@ -39,10 +39,10 @@ const Crawler = require('./crawler.js');
 crawler = new Crawler({
     startPageURL: 'https://subway.simba.taobao.com/#!/manage/campaign/index', // 启动地址
     gotoUrl: async (url) => { location.href = url }, // 跳转链接的方法。Crawler 是一个纯 JS 库，你可以自由选择跳转方式。
-    resourceList: [ // resourceList 是一个列表，列表中每一项代表一组有相同结构的网页。
+    pageList: [ // pageList 是一个列表，列表中每一项代表一组有相同结构的网页。
         {
             id: 'keywordsList',
-            shouldCrawl: (url) => {
+            triggerOnUrl: (url) => {
                 // 当前配置项所适用的网页
                 return !!url && !!url.match(/(https:\/\/subway.simba.taobao.com)?\/?(#\!\/manage\/adgroup\/detail)(.*)/;
             },
@@ -76,10 +76,10 @@ crawler = new Crawler({
     minWait: 3000,
     maxWait: 5000,
     gotoUrl: async (url) => { location.href = url },
-    resourceList: [ // resourceList 是一个列表，列表中每一项代表一组有相同结构的网页。
+    pageList: [ // pageList 是一个列表，列表中每一项代表一组有相同结构的网页。
         {
             id: 'keywordsList',
-            shouldCrawl: (url) => {
+            triggerOnUrl: (url) => {
                 // 当前配置项所适用的网页
                 return !!url && !!url.match(/(https:\/\/subway.simba.taobao.com)?\/?(#\!\/manage\/adgroup\/detail)(.*)/;
             },
