@@ -106,7 +106,11 @@ const loginOptions = {
     }
 };
 
-function createCrawler() {
+function createCrawlerOptions(){
+
+    const KeywordsPage = require('./KeywordsPage');
+    const CampaignsPage = require('./CampaignsPage');
+    const AdgroupsPage = require('./AdgroupsPage');
     const options = {
         startPageURL: 'https://subway.simba.taobao.com/#!/manage/campaign/index',
         // startPageURL: 'https://subway.simba.taobao.com/#!/manage/campaign/detail?campaignId=40195486&start=2020-01-14&end=2020-01-14',
@@ -117,9 +121,9 @@ function createCrawler() {
             location.href = url
         },
         pageList: [
-            require('./CampaignsPage'),
-            require('./AdgroupsPage'),
-            require('./KeywordsPage'),
+            new CampaignsPage(),
+            new AdgroupsPage(),
+            new KeywordsPage(),
         ],
         login: loginOptions,
         onPageStart: () => {
@@ -129,7 +133,49 @@ function createCrawler() {
             crawlerSaver.clearCrawler();
         }
     }
+    return options;
+}
+
+function createDefaultCrawler() {
+    const options = createCrawlerOptions();
     return new Crawler(options);
+}
+
+function createOnePageCrawler() {
+    const options = createCrawlerOptions();
+
+    const { pageList } = options;
+    const url = window.location.href;
+    const newPageList = pageList.filter( p => p.triggerOnUrl(url));
+    newPageList.forEach( p => {
+        log.debug('createOnePageCrawler: id = ', p.id);
+        p.findNewUrl = false;
+        p.onDataFrameReady = async (dataFrame) => {
+
+            const workbook = XLSX.utils.book_new();
+        
+            const data = dataFrame.toCollection();
+            // const header = await db['headers'].where({ 'table_name': tableName }).first();
+            const option = undefined; // header ? { header } : undefined;
+            const sheet = XLSX.utils.json_to_sheet(data, option);
+            XLSX.utils.book_append_sheet(workbook, sheet, p.id);
+        
+            const timeStr = moment().format('YYYY-MM-DD_hh-mm-ss');
+            const prefix = p.id;
+            XLSX.writeFile(workbook, `${prefix}_${timeStr}.xls`)
+
+        }
+    })
+    options.pageList = newPageList;
+    options.startPageURL = url;
+    options.onPageStart = () => {};
+    options.onCrawlComplete = () => {};
+    return new Crawler(options);
+}
+
+function crawlCurrPage() {
+    const crawler = createOnePageCrawler();
+    crawler.start();
 }
 
 
@@ -148,6 +194,11 @@ const menus = [
         name: '抓取一次',
         fn: scrawlOnce,
         accessKey: 'once'
+    },
+    {
+        name: '抓取当前页面',
+        fn: crawlCurrPage,
+        accessKey: 'curr'
     },
     {
         name: '下载数据',
@@ -205,7 +256,7 @@ function scrawlOnce() {
     if (currRunningCrawler) {
         currRunningCrawler.clear();
     }
-    currRunningCrawler = createCrawler();
+    currRunningCrawler = createDefaultCrawler();
     currRunningCrawler.start().then(() => {
         log.debug('scrawlOnce: crawler done.');
     }).catch(e => {
@@ -214,12 +265,11 @@ function scrawlOnce() {
 }
 
 async function downloadData() {
-    log.debug('downloadData:');
+    log.debug('downloadData: tables: ', tables);
 
     const { db } = require('./db');
     const workbook = XLSX.utils.book_new();
-    const tables = ['campaigns_log', 'adgroups_log', 'keywords_log'];
-
+    const tables = ['campaigns_log', 'adgroups_log', 'keywords_log']
     for (const tableName of tables) {
         const data = await db[tableName].toArray();
         // const header = await db['headers'].where({ 'table_name': tableName }).first();
@@ -229,7 +279,8 @@ async function downloadData() {
     }
 
     const timeStr = moment().format('YYYY-MM-DD_hh-mm-ss');
-    XLSX.writeFile(workbook, `AntCrawler_${timeStr}.xls`)
+    const prefix = tables.length === 1 ? tables[0] : 'AntCrawler';
+    XLSX.writeFile(workbook, `${prefix}_${timeStr}.xls`)
 }
 
 function clearData() {
@@ -277,7 +328,7 @@ window.onload = async () => {
             log.debug(`restore Unfinished Crawler`);
 
             if (!loginOptions.needLogin()) {
-                currRunningCrawler = createCrawler();
+                currRunningCrawler = createDefaultCrawler();
                 crawlerSaver.restoreCrawler(currRunningCrawler);
             }
         }
@@ -286,7 +337,7 @@ window.onload = async () => {
         // 判断是否是登陆页面
         if (crawlerSaver.hasUnfinishedTask() && loginOptions.needLogin()) {
             log.debug(`login`);
-            currRunningCrawler = createCrawler();
+            currRunningCrawler = createDefaultCrawler();
             await currRunningCrawler.login();
         }
     }
