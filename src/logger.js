@@ -1,7 +1,7 @@
 
 
 const createLog = (fn) => (...args) => {
-    return fn(`[ ==== ${moment().format('YYYY-MM-DD hh:mm:ss')} ==== ]`, ...args)
+    return fn(`[ ==== ${moment().format('YYYY-MM-DD HH:mm:ss')} ==== ]`, ...args)
 }
 const log = {
     debug: createLog(console.log),

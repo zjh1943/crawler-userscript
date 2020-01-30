@@ -69,7 +69,7 @@ class CampaignsPage {
         const campaignIds = urls.map(v => getParameterFromUrl(v, 'campaignId'));
         dataFrame = dataFrame.withColumn('推广计划ID', (_, index) => campaignIds[index]);
 
-        const timeStr = moment().format('YYYY-MM-DD hh:mm:ss');
+        const timeStr = moment().format('YYYY-MM-DD HH:mm:ss');
         dataFrame = dataFrame.withColumn('抓取时间', () => timeStr);
 
         const fetchSn = Date.now().toString();
