@@ -31,14 +31,24 @@ cd {project_root}
 npm i 
 ```
 
-构建并启动服务：
+启动 http 服务：
 ```sh
 npm run dev
 ```
-这里会将构建好的`userscript`文件存储在`{project_root}/dist`文件夹，然后启动一个端口为 9001 的 HTTP 服务。
+这个命令会启动一个端口为 9001 的 HTTP 服务，根目录为`{project_root}`。
+
+构建代码
+```sh
+npm run build
+```
+这里会将构建好的`userscript`文件保存到`{project_root}/dist/ant.user.js`。每次修改完代码后，需要重新运行此命令。
+
+### 开发指引
 
 * 如果要在 Tampermonkey 中安装脚本，则可以直接将 `{project_root}/dist/ant.user.js`文件内容拷贝过去即可。
-* 如果在写代码时需要更新以调试，则在 Tampermonkey 中设置脚本更新地址为：`https://localhost:9001/dist/ant.user.js` 即可。这样每次点击「检查更新」，就会自动更新最新的代码。
+* 如果在写代码时需要更新以调试，则在 Tampermonkey 中设置脚本更新地址为：`https://localhost:9001/dist/ant.user.js` 即可。这样，每次修改完代码后重新构建(`npm run build`)，再点击 Tampermonkey 插件上的「检查更新」，就会自动更新最新的代码。
+* 引用的外部库，代码写在`template.user.js`文件的头部，比如要使用`XLSX`库，就在`template.user.js`中添加`// @require https://unpkg.com/xlsx/dist/xlsx.full.min.js`这一行。当执行`npm run build`时，这部分内容会自动写入 `{project_root}/dist/ant.user.js` 中去。
+
 
 # 爬虫使用方法
 
