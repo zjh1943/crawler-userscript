@@ -37,7 +37,7 @@ npm run dev
 ```
 这个命令会启动一个端口为 9001 的 HTTP 服务，根目录为`{project_root}`。
 
-构建代码
+构建代码：
 ```sh
 npm run build
 ```

@@ -5,7 +5,6 @@ const DataFrame = dfjs.DataFrame;
 const log = require('./logger');
 const { Crawler } = require('./crawler');
 const { delayDo } = require('./retry');
-const later = require('later');
 const crawlerSaver = require('./crawlerSaver');
 const schedulerSaver = require('./crawlerSchedulerSaver');
 
