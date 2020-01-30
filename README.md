@@ -16,7 +16,7 @@
 1. **接口足够开发爬虫**。Tampermonkey 是一个跨浏览器的扩展平台，通常写一个爬虫所需要调用的底层接口，浏览器扩展程序都提供了。
 2. **不会被反爬虫系统封印**。用浏览器扩展，可以最大程度的模拟用户真是行为，避免被烦爬虫系统发现。比如，如果用 selenium 来登陆淘宝，浏览器会留下一些记号，比如 `window.navigator.webdriver = true`，淘宝就能发现而阻止其登陆。后来，有各种大神想各种办法绕过淘宝网站的检测，但是过不了几个月，总是又被淘宝堵住漏洞。所以，selenium 不是长久之际，浏览器扩展才是一劳永逸的解决方法，因为淘宝不可能仅仅因为你装了扩展就阻止你登陆。
 
-# 安装
+# 安装和运行
 
 还没有时间把这个爬虫库做成一个第三方库，大家可以直接`clone`代码来运行。
 
@@ -49,8 +49,15 @@ npm run build
 * 如果在写代码时需要更新以调试，则在 Tampermonkey 中设置脚本更新地址为：`https://localhost:9001/dist/ant.user.js` 即可。这样，每次修改完代码后重新构建(`npm run build`)，再点击 Tampermonkey 插件上的「检查更新」，就会自动更新最新的代码。
 * 引用的外部库，代码写在`template.user.js`文件的头部，比如要使用`XLSX`库，就在`template.user.js`中添加`// @require https://unpkg.com/xlsx/dist/xlsx.full.min.js`这一行。当执行`npm run build`时，这部分内容会自动写入 `{project_root}/dist/ant.user.js` 中去。
 
+# 爬虫配置
 
-# 爬虫使用方法
+爬虫配置项：
+
+![配置](images/config.png)
+
+# 爬虫开发
+
+### 最简单的爬虫
 
 ```js
 const Crawler = require('./crawler.js');
@@ -84,7 +91,7 @@ crawler.start();
 ```
 
 
-# 更多配置项
+# 更多爬虫配置项
 
 ```js
 const Crawler = require('./crawler.js');
