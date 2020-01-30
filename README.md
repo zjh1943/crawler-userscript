@@ -9,7 +9,7 @@
 * 当 token 过期时自动登陆（需设置账号和密码）；
 * 仅下载当前页面数据；
 
-![截图](images/screenshot.png)
+![截图](images/screenshot.jpg)
 
 # 为什么在 Tampermonkey 上写爬虫？
 
@@ -53,7 +53,7 @@ npm run build
 
 爬虫配置项：
 
-![配置](images/config.png)
+![配置](images/config.jpg)
 
 # 爬虫开发
 
