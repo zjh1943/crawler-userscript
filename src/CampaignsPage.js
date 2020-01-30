@@ -37,6 +37,7 @@ async function parseCampaignList() {
 
     const { db } = require('./db');
     await db['campaigns_log'].bulkPut(dataFrame.toCollection())
+    await db['headers'].put({table_name: 'campaigns_log', 'columns': dataFrame.listColumns()});
 
 };
 

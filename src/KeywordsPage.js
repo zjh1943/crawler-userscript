@@ -59,7 +59,7 @@ async function parseData() {
 
     const { db } = require('./db');
     await db['keywords_log'].bulkPut(dataFrame.toCollection())
-
+    await db['headers'].put({table_name: 'keywords_log', 'columns': dataFrame.listColumns()});
 };
 
 const KeywordsPage = {

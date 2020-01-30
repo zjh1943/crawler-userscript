@@ -220,10 +220,12 @@ async function downloadData() {
     const workbook = XLSX.utils.book_new();
     const tables = ['campaigns_log', 'adgroups_log', 'keywords_log'];
 
-    for ( const name of tables ) {
-        const data = await db[name].toArray();
-        const sheet = XLSX.utils.json_to_sheet(data);
-        XLSX.utils.book_append_sheet(workbook, sheet, name);
+    for (const tableName of tables) {
+        const data = await db[tableName].toArray();
+        // const header = await db['headers'].where({ 'table_name': tableName }).first();
+        const option = undefined; // header ? { header } : undefined;
+        const sheet = XLSX.utils.json_to_sheet(data, option);
+        XLSX.utils.book_append_sheet(workbook, sheet, tableName);
     }
 
     const timeStr = moment().format('YYYY-MM-DD_hh-mm-ss');
@@ -254,6 +256,9 @@ let currRunningCrawler = null;
 window.onload = async () => {
     setupConfig();
     later.date.localTime();
+
+    // 在 Tampermonkey 中，一个网页有多个 frame，每个 frame 都满足 userscript 的触发条件时，会启动多个实例。
+    // 在 Tampermonkey 中，不同源的 iframe ，很难进行直接操作。所以，必须分开在两个环境中进行。
 
     // top window
     if (window.top == window.self) {

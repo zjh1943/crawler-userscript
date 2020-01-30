@@ -57,6 +57,7 @@ async function parseData() {
 
     const { db } = require('./db');
     await db['adgroups_log'].bulkPut(dataFrame.toCollection())
+    await db['headers'].put({table_name: 'adgroups_log', 'columns': dataFrame.listColumns()});
 
 };
 

@@ -4,7 +4,13 @@ function initSchema(){
     db.version(1).stores({
         'campaigns_log': '++,推广计划ID',
         'adgroups_log': '++,推广计划ID,推广单元ID',
-        'keywords_log': '++,推广计划ID,推广单元ID,关键词'
+        'keywords_log': '++,推广计划ID,推广单元ID,关键词',
+    });
+    db.version(2).stores({
+        'campaigns_log': '++,推广计划ID',
+        'adgroups_log': '++,推广计划ID,推广单元ID',
+        'keywords_log': '++,推广计划ID,推广单元ID,关键词',
+        'headers': '&table_name',
     });
 }
 
