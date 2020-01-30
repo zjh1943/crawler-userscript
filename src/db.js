@@ -15,10 +15,10 @@ function initSchema(){
 }
 
 
-function clear() {
-    db['campaigns_log'].clear();
-    db['adgroups_log'].clear();
-    db['keywords_log'].clear();
+async function clear() {
+    await db['campaigns_log'].clear();
+    await db['adgroups_log'].clear();
+    await db['keywords_log'].clear();
 }
 
 initSchema();

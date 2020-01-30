@@ -9,7 +9,7 @@ const crawlerSaver = require('./crawlerSaver');
 const schedulerSaver = require('./crawlerSchedulerSaver');
 
 
-function setupConfig() {
+function initConfigPannel() {
     GM_config.init(
         {
             'id': 'Taobao_Crawler_Config',
@@ -178,7 +178,7 @@ function crawlCurrPage() {
 }
 
 
-const menus = [
+const GMMenus = [
     {
         name: '启动定时抓取',
         fn: startCrawlerScheduler,
@@ -190,22 +190,22 @@ const menus = [
         accessKey: 'end'
     },
     {
-        name: '抓取一次',
+        name: '仅抓取一次',
         fn: scrawlOnce,
         accessKey: 'once'
     },
     {
-        name: '抓取当前页面',
+        name: '仅抓取此页',
         fn: crawlCurrPage,
         accessKey: 'curr'
     },
     {
-        name: '下载数据',
+        name: '下载缓存的数据',
         fn: downloadData,
         accessKey: 'download',
     },
     {
-        name: '清空数据',
+        name: '清空缓存的数据',
         fn: clearData,
         accessKey: 'clear',
     },
@@ -216,7 +216,7 @@ const menus = [
     },
 ];
 
-menus.forEach(m => {
+GMMenus.forEach(m => {
     GM_registerMenuCommand(m.name, m.fn, m.accessKey);
 });
 
@@ -263,10 +263,10 @@ function scrawlOnce() {
     });
 }
 
-async function downloadData() {
+async function downloadData(clearAfterDownload = false) {
     log.debug('downloadData: tables: ', tables);
 
-    const { db } = require('./db');
+    const { db, clear } = require('./db');
     const workbook = XLSX.utils.book_new();
     const tables = ['campaigns_log', 'adgroups_log', 'keywords_log']
     for (const tableName of tables) {
@@ -280,6 +280,10 @@ async function downloadData() {
     const timeStr = moment().format('YYYY-MM-DD_hh-mm-ss');
     const prefix = tables.length === 1 ? tables[0] : 'AntCrawler';
     XLSX.writeFile(workbook, `${prefix}_${timeStr}.xls`)
+
+    if(clearAfterDownload){
+        await clear();
+    }
 }
 
 function clearData() {
@@ -292,7 +296,7 @@ function startDownloadScheduler() {
     log.debug('startDownloadScheduler: text:', text);
     try {
         const sched = later.parse.text(text);
-        later.setInterval(downloadData, sched);
+        later.setInterval(() => downloadData(true), sched);
         log.debug('startDownloadScheduler: next 10 occurences: ', later.schedule(sched).next(10));
     } catch (e) {
         log.error(e);
@@ -304,7 +308,7 @@ let crawlerScheduler = null;
 let currRunningCrawler = null;
 
 window.onload = async () => {
-    setupConfig();
+    initConfigPannel();
     later.date.localTime();
 
     // 在 Tampermonkey 中，一个网页有多个 frame，每个 frame 都满足 userscript 的触发条件时，会启动多个实例。
