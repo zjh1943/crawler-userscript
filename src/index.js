@@ -341,6 +341,4 @@ window.onload = async () => {
             await currRunningCrawler.login();
         }
     }
-
-
 };

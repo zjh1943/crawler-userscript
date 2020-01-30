@@ -115,7 +115,6 @@ crawler = new Crawler({
             // 登陆页面是否已经加载完全
             return false;
         }
-
     }
 
 };)
@@ -136,6 +135,60 @@ crawler.clear();
 crawler.pause();
 crawler.resume();
 
+```
+
+## 关于自动登陆
+
+#### 问题1：页面刷新后 userscript 的内存清空
+
+当「直通车」的 token 过期，需要重新登陆时，页面会自动条转到登陆页面，此时浏览器会触发「刷新」操动作。  
+此时，userscript 的上下文环境全部丢失，整个内存都会丢失。所以，我在每抓取一个页面后，都会用`GM_setValue()`保存爬虫的抓取进度，当页面重新加载成功后，再恢复。具体的代码在 `crawlerSaver.js`，`crawlerSchedulerSaver.js` 两个文件中。
+
+#### 问题2：userscript 中 iframe 元素操作
+
+当页面有`iframe`元素时，且 inner window 跟 top window 不同源时，userscript 中无法直接对`iframe`进行操作。此时，userscript 会创建 N 份实例（N等于总共 window 数量），分别对应 top window 和若干个 inner window。
+
+淘宝的登陆框在 inner window 里，所以登陆操作只能在 inner window 对应的 userscript 实例里进行。具体代码请见：
+
+```js
+window.onload = async () => {
+    setupConfig();
+    later.date.localTime();
+
+    // 在 Tampermonkey 中，一个网页有多个 frame，每个 frame 都满足 userscript 的触发条件时，会启动多个实例。
+    // 在 Tampermonkey 中，不同源的 iframe ，很难进行直接操作。所以，必须分开在两个环境中进行。
+
+    // top window
+    if (window.top == window.self) {
+
+        log.debug('top window');
+        // 初始化
+
+        // 启动下载数据的调度器
+        startDownloadScheduler();
+
+        // 恢复调度器
+        schedulerSaver.restoreScrawlerScheduler(startCrawlerSchedulerByText);
+
+        // 恢复之前未完成的爬取任务
+        if (crawlerSaver.hasUnfinishedTask()) {
+            log.debug(`restore Unfinished Crawler`);
+
+            if (!loginOptions.needLogin()) {
+                currRunningCrawler = createDefaultCrawler();
+                crawlerSaver.restoreCrawler(currRunningCrawler);
+            }
+        }
+    } else { // inner window
+        log.debug('inner window');
+        // 判断是否是登陆页面
+        if (crawlerSaver.hasUnfinishedTask() && loginOptions.needLogin()) {
+            log.debug(`login`);
+            currRunningCrawler = createDefaultCrawler();
+            await currRunningCrawler.login();
+        }
+    }
+};
 ```
 
 ## 其他
