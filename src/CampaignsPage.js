@@ -23,8 +23,8 @@ class CampaignsPage {
 
     id = 'Campaigns';
 
-    onPageReady = async () => {
-        const dataFrame = this.parseData();
+    onPageReady = async (fetchSN) => {
+        const dataFrame = this.parseData(fetchSN);
         await this.onDataFrameReady(dataFrame);
     }
 
@@ -52,7 +52,7 @@ class CampaignsPage {
         await db['headers'].put({ table_name: 'campaigns_log', 'columns': dataFrame.listColumns() });
     }
 
-    parseData = () => {
+    parseData = (fetchSN) => {
 
         const leftHead = extractDataAndSimplify('table[left="true"] thead', 'tr', 'th');
         const leftData = extractDataAndSimplify('table[left="true"] tbody', 'tr[mxv]');
@@ -72,8 +72,7 @@ class CampaignsPage {
         const timeStr = moment().format('YYYY-MM-DD HH:mm:ss');
         dataFrame = dataFrame.withColumn('抓取时间', () => timeStr);
 
-        const fetchSn = Date.now().toString();
-        dataFrame = dataFrame.withColumn('Fetch SN', () => fetchSn);
+        dataFrame = dataFrame.withColumn('Fetch SN', () => fetchSN);
 
         const shopName = $('span.header-nickname-inside:nth-of-type(1)').text();
         dataFrame = dataFrame.withColumn('店铺名称', () => shopName);

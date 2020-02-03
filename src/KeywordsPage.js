@@ -17,8 +17,8 @@ class KeywordsPage {
 
     id = 'Keywords';
 
-    onPageReady = async () => {
-        const dataFrame = this.parseData();
+    onPageReady = async (fetchSN) => {
+        const dataFrame = this.parseData(fetchSN);
         await this.onDataFrameReady(dataFrame);
     }
 
@@ -35,7 +35,7 @@ class KeywordsPage {
         await db['headers'].put({ table_name: 'keywords_log', 'columns': dataFrame.listColumns() });
     }
 
-    parseData = () => {
+    parseData = (fetchSN) => {
         const REMOVE_SIGN = '%TO_REMOVE%'
         const leftColumns = [`${REMOVE_SIGN}_1`, '状态', `${REMOVE_SIGN}_2`, '关键词'];
         const leftData = extractDataFromTable('.freeze-td table.bp-table', 'tr', 'td');
@@ -76,8 +76,7 @@ class KeywordsPage {
         const timeStr = moment().format('YYYY-MM-DD HH:mm:ss');
         dataFrame = dataFrame.withColumn('抓取时间', () => timeStr);
 
-        const fetchSn = Date.now().toString();
-        dataFrame = dataFrame.withColumn('Fetch SN', () => fetchSn);
+        dataFrame = dataFrame.withColumn('Fetch SN', () => fetchSN);
 
         const shopName = $('span.header-nickname-inside:nth-of-type(1)').text();
         dataFrame = dataFrame.withColumn('店铺名称', () => shopName);

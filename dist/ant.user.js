@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Taobao Subway Crawler
 // @namespace    http://tampermonkey.net/
-// @version      0.1.580372165
+// @version      0.1.580717208
 // @description  try to take over the world!
 // @author       You
 // @match        *.taobao.com/*
@@ -70,27 +70,33 @@ var AdgroupsPage = function AdgroupsPage() {
 
   _defineProperty(this, "onPageReady",
   /*#__PURE__*/
-  _asyncToGenerator(
-  /*#__PURE__*/
-  regeneratorRuntime.mark(function _callee() {
-    var dataFrame;
-    return regeneratorRuntime.wrap(function _callee$(_context) {
-      while (1) {
-        switch (_context.prev = _context.next) {
-          case 0:
-            dataFrame = _this.parseData();
-            _context.next = 3;
-            return _this.onDataFrameReady(dataFrame);
+  function () {
+    var _ref = _asyncToGenerator(
+    /*#__PURE__*/
+    regeneratorRuntime.mark(function _callee(fetchSN) {
+      var dataFrame;
+      return regeneratorRuntime.wrap(function _callee$(_context) {
+        while (1) {
+          switch (_context.prev = _context.next) {
+            case 0:
+              dataFrame = _this.parseData(fetchSN);
+              _context.next = 3;
+              return _this.onDataFrameReady(dataFrame);
 
-          case 3:
-          case "end":
-            return _context.stop();
+            case 3:
+            case "end":
+              return _context.stop();
+          }
         }
-      }
-    }, _callee);
-  })));
+      }, _callee);
+    }));
 
-  _defineProperty(this, "parseData", function () {
+    return function (_x) {
+      return _ref.apply(this, arguments);
+    };
+  }());
+
+  _defineProperty(this, "parseData", function (fetchSN) {
     var head = extractDataAndSimplify('#bp-scroll-table', 'tr', 'th');
     var columns = head[0].map(function (v) {
       if (v.startsWith('状态')) return '状态';else if (v.startsWith('营销场景')) return '营销场景';else return v;
@@ -134,13 +140,12 @@ var AdgroupsPage = function AdgroupsPage() {
     dataFrame = dataFrame.withColumn('宝贝ID', function (_, index) {
       return productIds[index];
     });
-    var timeStr = moment().format('YYYY-MM-DD hh:mm:ss');
+    var timeStr = moment().format('YYYY-MM-DD HH:mm:ss');
     dataFrame = dataFrame.withColumn('抓取时间', function () {
       return timeStr;
     });
-    var fetchSn = Date.now().toString();
     dataFrame = dataFrame.withColumn('Fetch SN', function () {
-      return fetchSn;
+      return fetchSN;
     });
     var shopName = $('span.header-nickname-inside:nth-of-type(1)').text();
     dataFrame = dataFrame.withColumn('店铺名称', function () {
@@ -181,7 +186,7 @@ var AdgroupsPage = function AdgroupsPage() {
       }, _callee2);
     }));
 
-    return function (_x) {
+    return function (_x2) {
       return _ref2.apply(this, arguments);
     };
   }());
@@ -228,25 +233,31 @@ var CampaignsPage = function CampaignsPage() {
 
   _defineProperty(this, "onPageReady",
   /*#__PURE__*/
-  _asyncToGenerator(
-  /*#__PURE__*/
-  regeneratorRuntime.mark(function _callee() {
-    var dataFrame;
-    return regeneratorRuntime.wrap(function _callee$(_context) {
-      while (1) {
-        switch (_context.prev = _context.next) {
-          case 0:
-            dataFrame = _this.parseData();
-            _context.next = 3;
-            return _this.onDataFrameReady(dataFrame);
+  function () {
+    var _ref = _asyncToGenerator(
+    /*#__PURE__*/
+    regeneratorRuntime.mark(function _callee(fetchSN) {
+      var dataFrame;
+      return regeneratorRuntime.wrap(function _callee$(_context) {
+        while (1) {
+          switch (_context.prev = _context.next) {
+            case 0:
+              dataFrame = _this.parseData(fetchSN);
+              _context.next = 3;
+              return _this.onDataFrameReady(dataFrame);
 
-          case 3:
-          case "end":
-            return _context.stop();
+            case 3:
+            case "end":
+              return _context.stop();
+          }
         }
-      }
-    }, _callee);
-  })));
+      }, _callee);
+    }));
+
+    return function (_x) {
+      return _ref.apply(this, arguments);
+    };
+  }());
 
   _defineProperty(this, "triggerOnUrl", function (url) {
     return !!url && !!url.match(/(https:\/\/subway.simba.taobao.com)?\/?(#\!\/manage\/campaign\/index)(.*)/);
@@ -293,12 +304,12 @@ var CampaignsPage = function CampaignsPage() {
       }, _callee2);
     }));
 
-    return function (_x) {
+    return function (_x2) {
       return _ref2.apply(this, arguments);
     };
   }());
 
-  _defineProperty(this, "parseData", function () {
+  _defineProperty(this, "parseData", function (fetchSN) {
     var leftHead = extractDataAndSimplify('table[left="true"] thead', 'tr', 'th');
     var leftData = extractDataAndSimplify('table[left="true"] tbody', 'tr[mxv]');
     var rightHead = extractDataAndSimplify('table[center="true"] thead', 'tr', 'th');
@@ -318,13 +329,12 @@ var CampaignsPage = function CampaignsPage() {
     dataFrame = dataFrame.withColumn('推广计划ID', function (_, index) {
       return campaignIds[index];
     });
-    var timeStr = moment().format('YYYY-MM-DD hh:mm:ss');
+    var timeStr = moment().format('YYYY-MM-DD HH:mm:ss');
     dataFrame = dataFrame.withColumn('抓取时间', function () {
       return timeStr;
     });
-    var fetchSn = Date.now().toString();
     dataFrame = dataFrame.withColumn('Fetch SN', function () {
-      return fetchSn;
+      return fetchSN;
     });
     var shopName = $('span.header-nickname-inside:nth-of-type(1)').text();
     dataFrame = dataFrame.withColumn('店铺名称', function () {
@@ -370,25 +380,31 @@ var KeywordsPage = function KeywordsPage() {
 
   _defineProperty(this, "onPageReady",
   /*#__PURE__*/
-  _asyncToGenerator(
-  /*#__PURE__*/
-  regeneratorRuntime.mark(function _callee() {
-    var dataFrame;
-    return regeneratorRuntime.wrap(function _callee$(_context) {
-      while (1) {
-        switch (_context.prev = _context.next) {
-          case 0:
-            dataFrame = _this.parseData();
-            _context.next = 3;
-            return _this.onDataFrameReady(dataFrame);
+  function () {
+    var _ref = _asyncToGenerator(
+    /*#__PURE__*/
+    regeneratorRuntime.mark(function _callee(fetchSN) {
+      var dataFrame;
+      return regeneratorRuntime.wrap(function _callee$(_context) {
+        while (1) {
+          switch (_context.prev = _context.next) {
+            case 0:
+              dataFrame = _this.parseData(fetchSN);
+              _context.next = 3;
+              return _this.onDataFrameReady(dataFrame);
 
-          case 3:
-          case "end":
-            return _context.stop();
+            case 3:
+            case "end":
+              return _context.stop();
+          }
         }
-      }
-    }, _callee);
-  })));
+      }, _callee);
+    }));
+
+    return function (_x) {
+      return _ref.apply(this, arguments);
+    };
+  }());
 
   _defineProperty(this, "triggerOnUrl", function (url) {
     return !!url && !!url.match(/(https:\/\/subway.simba.taobao.com)?\/?(#\!\/manage\/adgroup\/detail)(.*)/);
@@ -433,12 +449,12 @@ var KeywordsPage = function KeywordsPage() {
       }, _callee2);
     }));
 
-    return function (_x) {
+    return function (_x2) {
       return _ref2.apply(this, arguments);
     };
   }());
 
-  _defineProperty(this, "parseData", function () {
+  _defineProperty(this, "parseData", function (fetchSN) {
     var REMOVE_SIGN = '%TO_REMOVE%';
     var leftColumns = ["".concat(REMOVE_SIGN, "_1"), '状态', "".concat(REMOVE_SIGN, "_2"), '关键词'];
     var leftData = extractDataFromTable('.freeze-td table.bp-table', 'tr', 'td');
@@ -479,13 +495,12 @@ var KeywordsPage = function KeywordsPage() {
     dataFrame = dataFrame.withColumn('宝贝ID', function () {
       return productId;
     });
-    var timeStr = moment().format('YYYY-MM-DD hh:mm:ss');
+    var timeStr = moment().format('YYYY-MM-DD HH:mm:ss');
     dataFrame = dataFrame.withColumn('抓取时间', function () {
       return timeStr;
     });
-    var fetchSn = Date.now().toString();
     dataFrame = dataFrame.withColumn('Fetch SN', function () {
-      return fetchSn;
+      return fetchSN;
     });
     var shopName = $('span.header-nickname-inside:nth-of-type(1)').text();
     dataFrame = dataFrame.withColumn('店铺名称', function () {
@@ -597,6 +612,7 @@ var Crawler =
 /**
  * @type {CrawlerOption}
  */
+// 每启动一次 crawler，将分配一个新的 SN，作为此次抓取的唯一标识符。
 // 将要抓取的 URL
 // 正在抓取的 URL
 
@@ -616,6 +632,8 @@ function Crawler(options) {
     operateInterval: 1000,
     minWait: 3000
   }, "maxWait", 8000));
+
+  _defineProperty(this, "fetchSN", new Date().getTime());
 
   _defineProperty(this, "urlList", []);
 
@@ -653,9 +671,10 @@ function Crawler(options) {
             _this.isPause = false;
             _this.isToBeClear = false;
             _this.isCrawling = true;
+            _this.fetchSN = new Date().getTime();
             return _context.abrupt("return", _this._start());
 
-          case 6:
+          case 7:
           case "end":
             return _context.stop();
         }
@@ -678,9 +697,10 @@ function Crawler(options) {
               _this.isCrawling = true;
               _this.isPause = false;
               _this.isToBeClear = false;
+              _this.fetchSN = new Date().getTime();
               return _context2.abrupt("return", _this._start());
 
-            case 6:
+            case 7:
             case "end":
               return _context2.stop();
           }
@@ -888,14 +908,17 @@ function Crawler(options) {
                   while (1) {
                     switch (_context7.prev = _context7.next) {
                       case 0:
-                        onPageReady();
+                        _context7.next = 2;
+                        return onPageReady(_this.fetchSN);
+
+                      case 2:
                         newUrls = getUrlsToAdd().filter(function (u) {
                           return !_this.crawledUrlSet.has(u);
                         });
-                        log.debug('newUrls:', newUrls);
+                        log.debug('_openPageAndLoginIfNeed. newUrls:', newUrls);
                         _this.urlList = _this.urlList.concat(newUrls);
 
-                      case 4:
+                      case 5:
                       case "end":
                         return _context7.stop();
                     }
@@ -1748,7 +1771,7 @@ var createLog = function createLog(fn) {
       args[_key] = arguments[_key];
     }
 
-    return fn.apply(void 0, ["[ ==== ".concat(moment().format('YYYY-MM-DD hh:mm:ss'), " ==== ]")].concat(args));
+    return fn.apply(void 0, ["[ ==== ".concat(moment().format('YYYY-MM-DD HH:mm:ss'), " ==== ]")].concat(args));
   };
 };
 

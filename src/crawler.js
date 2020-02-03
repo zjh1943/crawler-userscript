@@ -62,6 +62,7 @@ class Crawler {
         maxWait: 8000,
     }
 
+    fetchSN = new Date().getTime(); // 每启动一次 crawler，将分配一个新的 SN，作为此次抓取的唯一标识符。
     urlList = []; // 将要抓取的 URL
     currUrl = null; // 正在抓取的 URL
     crawledUrlSet = new Set();
@@ -93,6 +94,7 @@ class Crawler {
         this.isPause = false;
         this.isToBeClear = false;
         this.isCrawling = true;
+        this.fetchSN = new Date().getTime()
         return this._start()
     }
 
@@ -102,6 +104,7 @@ class Crawler {
         this.isCrawling = true;
         this.isPause = false;
         this.isToBeClear = false;
+        this.fetchSN = new Date().getTime()
         return this._start();
     }
 
@@ -188,10 +191,10 @@ class Crawler {
 
         return this._runFunctionAndLoginIfNeed(this._openPageOnce, url, isPageReady)
             .then(async () => {
-                onPageReady();
+                await onPageReady(this.fetchSN);
                 const newUrls = getUrlsToAdd()
                     .filter((u) => !this.crawledUrlSet.has(u))
-                log.debug('newUrls:', newUrls);
+                log.debug('_openPageAndLoginIfNeed. newUrls:', newUrls);
                 this.urlList = this.urlList.concat(newUrls);
             })
     }

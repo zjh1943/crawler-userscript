@@ -38,12 +38,12 @@ class AdgroupsPage {
     }
     isPageReady = () => $('a.ad-title').length > 0 && $('#bp-scroll-table tr th').length > 0;
 
-    onPageReady = async () => {
-        const dataFrame = this.parseData();
+    onPageReady = async (fetchSN) => {
+        const dataFrame = this.parseData(fetchSN);
         await this.onDataFrameReady(dataFrame);
     }
 
-    parseData = () => {
+    parseData = (fetchSN) => {
         const head = extractDataAndSimplify('#bp-scroll-table', 'tr', 'th');
         const columns = head[0].map(
             (v) => {
@@ -81,8 +81,7 @@ class AdgroupsPage {
         const timeStr = moment().format('YYYY-MM-DD HH:mm:ss');
         dataFrame = dataFrame.withColumn('抓取时间', () => timeStr);
 
-        const fetchSn = Date.now().toString();
-        dataFrame = dataFrame.withColumn('Fetch SN', () => fetchSn);
+        dataFrame = dataFrame.withColumn('Fetch SN', () => fetchSN);
 
         const shopName = $('span.header-nickname-inside:nth-of-type(1)').text();
         dataFrame = dataFrame.withColumn('店铺名称', () => shopName);
