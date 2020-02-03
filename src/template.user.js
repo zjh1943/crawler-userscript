@@ -7,7 +7,7 @@
 // @match        *.taobao.com/*
 // @run-at       document-idle
 // @require      https://openuserjs.org/src/libs/sizzle/GM_config.js
-// @require      http://code.jquery.com/jquery-3.4.1.slim.min.js
+// @require      https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.slim.min.js
 // @require      https://gmousse.github.io/dataframe-js/dist/dataframe.min.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/dexie/2.0.4/dexie.min.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js
