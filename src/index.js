@@ -251,7 +251,15 @@ function stopCrawlerScheduler() {
     crawlerScheduler = null;
 }
 
+let lastScrawlOnceTime = 0;
 function scrawlOnce() {
+    const currTime = new Date().getTime();
+    if( lastScrawlOnceTime + 60*1000 > currTime){
+        //fixme: later.js 有 bug，导致回调函数被重复调用 N 次。这里先打个补丁，后面 later.js 修复后再更新。
+        console.warn('Scrawl too many times in a short time!');
+        return;
+    }
+    lastScrawlOnceTime = currTime;
     if (currRunningCrawler) {
         currRunningCrawler.clear();
     }
