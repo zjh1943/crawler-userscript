@@ -157,7 +157,7 @@ class Crawler {
     }
 
     _openPageOnce = async (url, isPageReady) => {
-        log.debug('_openPageOnce:', url);
+        // log.debug('_openPageOnce:', url);
         return this.options.gotoUrl(url)
             .then(() => {
                 return waitUntil(isPageReady, this.options.maxWait)
@@ -184,7 +184,7 @@ class Crawler {
 
 
     _openPageAndLoginIfNeed = async (url) => {
-        log.debug('_openPageAndLoginIfNeed: ', url)
+        // log.debug('_openPageAndLoginIfNeed: ', url)
         const { pageList } = this.options;
         const page = pageList.find((r) => r.triggerOnUrl(url));
         const { isPageReady, onPageReady, getUrlsToAdd } = page;

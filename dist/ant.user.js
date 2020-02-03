@@ -1,13 +1,13 @@
 // ==UserScript==
 // @name         Taobao Subway Crawler
 // @namespace    http://tampermonkey.net/
-// @version      0.1.580717208
+// @version      0.1.580733737
 // @description  try to take over the world!
 // @author       You
 // @match        *.taobao.com/*
 // @run-at       document-idle
 // @require      https://openuserjs.org/src/libs/sizzle/GM_config.js
-// @require      http://code.jquery.com/jquery-3.4.1.slim.min.js
+// @require      https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.slim.min.js
 // @require      https://gmousse.github.io/dataframe-js/dist/dataframe.min.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/dexie/2.0.4/dexie.min.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js
@@ -808,12 +808,11 @@ function Crawler(options) {
         while (1) {
           switch (_context5.prev = _context5.next) {
             case 0:
-              log.debug('_openPageOnce:', url);
               return _context5.abrupt("return", _this.options.gotoUrl(url).then(function () {
                 return waitUntil(isPageReady, _this.options.maxWait);
               }));
 
-            case 2:
+            case 1:
             case "end":
               return _context5.stop();
           }
@@ -892,7 +891,7 @@ function Crawler(options) {
         while (1) {
           switch (_context8.prev = _context8.next) {
             case 0:
-              log.debug('_openPageAndLoginIfNeed: ', url);
+              // log.debug('_openPageAndLoginIfNeed: ', url)
               pageList = _this.options.pageList;
               page = pageList.find(function (r) {
                 return r.triggerOnUrl(url);
@@ -926,7 +925,7 @@ function Crawler(options) {
                 }, _callee7);
               }))));
 
-            case 5:
+            case 4:
             case "end":
               return _context8.stop();
           }
@@ -1584,7 +1583,19 @@ function stopCrawlerScheduler() {
   crawlerScheduler = null;
 }
 
+var lastScrawlOnceTime = 0;
+
 function scrawlOnce() {
+  var currTime = new Date().getTime();
+
+  if (lastScrawlOnceTime + 60 * 1000 > currTime) {
+    //fixme: later.js 有 bug，导致回调函数被重复调用 N 次。这里先打个补丁，后面 later.js 修复后再更新。
+    console.warn('Scrawl too many times in a short time!');
+    return;
+  }
+
+  lastScrawlOnceTime = currTime;
+
   if (currRunningCrawler) {
     currRunningCrawler.clear();
   }
