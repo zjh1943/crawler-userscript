@@ -12,7 +12,7 @@
 // @require      https://cdnjs.cloudflare.com/ajax/libs/dexie/2.0.4/dexie.min.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.15.5/xlsx.full.min.js
-// @require      http://res.bookbook.pub/js/later/1.2.0/later.min.js
+// @require      https://unpkg.com/later2@2.0.1/later.min.js
 // @grant             unsafeWindow
 // @grant             GM_xmlhttpRequest
 // @grant             GM_setClipboard
