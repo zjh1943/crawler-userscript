@@ -6,7 +6,7 @@
 // @match        *.taobao.com/*
 // @homePage     https://github.com/zjh1943/crawler-userscript
 // @updateURL    https://openuserjs.org/meta/zjh1943/My_Script.meta.js
-// @license      LGPL
+// @license      GPL
 // @copyright    2020, zjh1943
 // @run-at       document-idle
 // @require      https://openuserjs.org/src/libs/sizzle/GM_config.js
