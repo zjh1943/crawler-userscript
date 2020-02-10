@@ -1,10 +1,13 @@
 // ==UserScript==
 // @name         Taobao Subway Crawler
-// @namespace    http://tampermonkey.net/
-// @version      0.1.{%timestamp%}
-// @description  try to take over the world!
-// @author       You
+// @version      0.2.0
+// @author       zjh1943
+// @description  This userscript can crawl taobao ubway data every one hour.
 // @match        *.taobao.com/*
+// @homePage     https://github.com/zjh1943/crawler-userscript
+// @updateURL    https://openuserjs.org/meta/zjh1943/My_Script.meta.js
+// @license      LGPL; http://www.gnu.org/licenses/lgpl-3.0.html
+// @copyright    2020, zjh1943
 // @run-at       document-idle
 // @require      https://openuserjs.org/src/libs/sizzle/GM_config.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.slim.min.js
