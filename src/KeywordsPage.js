@@ -64,6 +64,8 @@ class KeywordsPage {
         let dataFrame = new DataFrame(data, columns);
         dataFrame = dataFrame.restructure(columns.filter(col => !col.includes(REMOVE_SIGN)));
 
+        dataFrame = dataFrame.withColumn('关键词', (row) => row.get('关键词').replace(/查看历史报表关键词全景图$/, ''));
+
         const campaignId = getParameterFromUrl(location.href, 'campaignId');
         dataFrame = dataFrame.withColumn('推广计划ID', () => campaignId);
 
