@@ -75,8 +75,8 @@ class AdgroupsPage {
         const adgroupIds = urls.map(v => getParameterFromUrl(v, 'adGroupId'));
         dataFrame = dataFrame.withColumn('推广单元ID', (_, index) => adgroupIds[index]);
 
-        const productIds = urls.map(v => getParameterFromUrl(v, 'productId'));
-        dataFrame = dataFrame.withColumn('宝贝ID', (_, index) => productIds[index]);
+        // const productIds = urls.map(v => getParameterFromUrl(v, 'productId'));
+        // dataFrame = dataFrame.withColumn('宝贝ID', (_, index) => productIds[index]);
 
         const timeStr = moment().format('YYYY-MM-DD HH:mm:ss');
         dataFrame = dataFrame.withColumn('抓取时间', () => timeStr);
