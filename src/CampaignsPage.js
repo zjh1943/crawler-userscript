@@ -14,6 +14,9 @@ const anchorFilter = (ele) => {
     return $(ele).closest('tr').find('span.status-0').length <= 0;
 }
 
+            
+const newUrlsGetter = createUrlGetter('.manage-common-table-container div.editor-content a', anchorFilter);
+
 class CampaignsPage {
 
     constructor() {
@@ -33,9 +36,7 @@ class CampaignsPage {
     };
 
     getUrlsToAdd = () => {
-        return this.findNewUrl ?
-            createUrlGetter('.manage-common-table-container div.editor-content a', anchorFilter)():
-            [];
+        return this.findNewUrl ? newUrlsGetter() : [];
     };
 
     isPageReady = () => {

@@ -249,6 +249,7 @@ function stopCrawlerScheduler() {
     }
     crawlerScheduler.clear();
     crawlerScheduler = null;
+    log.debug('stopCrawlerScheduler');
 }
 
 let lastScrawlOnceTime = 0;

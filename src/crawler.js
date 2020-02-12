@@ -192,8 +192,8 @@ class Crawler {
         return this._runFunctionAndLoginIfNeed(this._openPageOnce, url, isPageReady)
             .then(async () => {
                 await onPageReady(this.fetchSN);
-                const newUrls = getUrlsToAdd()
-                    .filter((u) => !this.crawledUrlSet.has(u))
+                let newUrls = getUrlsToAdd();
+                newUrls = newUrls.filter((u) => !this.crawledUrlSet.has(u))
                 log.debug('_openPageAndLoginIfNeed. newUrls:', newUrls);
                 this.urlList = this.urlList.concat(newUrls);
             })

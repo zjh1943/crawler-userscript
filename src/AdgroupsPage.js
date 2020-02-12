@@ -18,6 +18,8 @@ const anchorFilter = (ele) => {
     return $(ele).closest('tr').find('td span strong:contains("暂停")').length <= 0;
 }
 
+const newUrlsGetter = createUrlGetter('a.ad-title', anchorFilter);
+
 class AdgroupsPage {
 
     constructor() {
@@ -32,9 +34,7 @@ class AdgroupsPage {
     };
 
     getUrlsToAdd = () => {
-        return this.findNewUrl ?
-            createUrlGetter('a.ad-title', anchorFilter) :
-            [];
+        return this.findNewUrl ? newUrlsGetter(): [];
     }
     isPageReady = () => $('a.ad-title').length > 0 && $('#bp-scroll-table tr th').length > 0;
 
