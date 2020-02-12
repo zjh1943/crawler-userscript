@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Taobao Subway Crawler
-// @version      0.2.1
+// @version      0.2.2
 // @author       zjh1943
 // @description  This userscript can crawl taobao subway campaign data every one hour.
 // @match        *.taobao.com/*
@@ -52,6 +52,8 @@ var anchorFilter = function anchorFilter(ele) {
   return $(ele).closest('tr').find('td span strong:contains("暂停")').length <= 0;
 };
 
+var newUrlsGetter = createUrlGetter('a.ad-title', anchorFilter);
+
 var AdgroupsPage = function AdgroupsPage() {
   var _this = this;
 
@@ -64,7 +66,7 @@ var AdgroupsPage = function AdgroupsPage() {
   });
 
   _defineProperty(this, "getUrlsToAdd", function () {
-    return _this.findNewUrl ? createUrlGetter('a.ad-title', anchorFilter) : [];
+    return _this.findNewUrl ? newUrlsGetter() : [];
   });
 
   _defineProperty(this, "isPageReady", function () {
@@ -136,13 +138,9 @@ var AdgroupsPage = function AdgroupsPage() {
     });
     dataFrame = dataFrame.withColumn('推广单元ID', function (_, index) {
       return adgroupIds[index];
-    });
-    var productIds = urls.map(function (v) {
-      return getParameterFromUrl(v, 'productId');
-    });
-    dataFrame = dataFrame.withColumn('宝贝ID', function (_, index) {
-      return productIds[index];
-    });
+    }); // const productIds = urls.map(v => getParameterFromUrl(v, 'productId'));
+    // dataFrame = dataFrame.withColumn('宝贝ID', (_, index) => productIds[index]);
+
     var timeStr = moment().format('YYYY-MM-DD HH:mm:ss');
     dataFrame = dataFrame.withColumn('抓取时间', function () {
       return timeStr;
@@ -227,6 +225,8 @@ var anchorFilter = function anchorFilter(ele) {
   return $(ele).closest('tr').find('span.status-0').length <= 0;
 };
 
+var newUrlsGetter = createUrlGetter('.manage-common-table-container div.editor-content a', anchorFilter);
+
 var CampaignsPage = function CampaignsPage() {
   var _this = this;
 
@@ -267,7 +267,7 @@ var CampaignsPage = function CampaignsPage() {
   });
 
   _defineProperty(this, "getUrlsToAdd", function () {
-    return _this.findNewUrl ? createUrlGetter('.manage-common-table-container div.editor-content a', anchorFilter)() : [];
+    return _this.findNewUrl ? newUrlsGetter() : [];
   });
 
   _defineProperty(this, "isPageReady", function () {
@@ -486,6 +486,9 @@ var KeywordsPage = function KeywordsPage() {
     dataFrame = dataFrame.restructure(columns.filter(function (col) {
       return !col.includes(REMOVE_SIGN);
     }));
+    dataFrame = dataFrame.withColumn('关键词', function (row) {
+      return row.get('关键词').replace(/查看历史报表关键词全景图$/, '');
+    });
     var campaignId = getParameterFromUrl(location.href, 'campaignId');
     dataFrame = dataFrame.withColumn('推广计划ID', function () {
       return campaignId;
@@ -494,7 +497,8 @@ var KeywordsPage = function KeywordsPage() {
     dataFrame = dataFrame.withColumn('推广单元ID', function () {
       return adgroupID;
     });
-    var productId = getParameterFromUrl(location.href, 'productId');
+    var productUrl = $('article.box > a.imgcn80').attr('href');
+    var productId = getParameterFromUrl(productUrl, 'id');
     dataFrame = dataFrame.withColumn('宝贝ID', function () {
       return productId;
     });
@@ -914,13 +918,14 @@ function Crawler(options) {
                         return onPageReady(_this.fetchSN);
 
                       case 2:
-                        newUrls = getUrlsToAdd().filter(function (u) {
+                        newUrls = getUrlsToAdd();
+                        newUrls = newUrls.filter(function (u) {
                           return !_this.crawledUrlSet.has(u);
                         });
                         log.debug('_openPageAndLoginIfNeed. newUrls:', newUrls);
                         _this.urlList = _this.urlList.concat(newUrls);
 
-                      case 5:
+                      case 6:
                       case "end":
                         return _context7.stop();
                     }
@@ -1584,6 +1589,7 @@ function stopCrawlerScheduler() {
 
   crawlerScheduler.clear();
   crawlerScheduler = null;
+  log.debug('stopCrawlerScheduler');
 }
 
 var lastScrawlOnceTime = 0;
