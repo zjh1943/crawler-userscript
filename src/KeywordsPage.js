@@ -72,7 +72,8 @@ class KeywordsPage {
         const adgroupID = getParameterFromUrl(location.href, 'adGroupId');
         dataFrame = dataFrame.withColumn('推广单元ID', () => adgroupID);
 
-        const productId = getParameterFromUrl(location.href, 'productId');
+        const productUrl = $('article.box > a.imgcn80').attr('href');
+        const productId = getParameterFromUrl(productUrl, 'id');
         dataFrame = dataFrame.withColumn('宝贝ID', () => productId);
 
         const timeStr = moment().format('YYYY-MM-DD HH:mm:ss');
