@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Taobao Subway Crawler
-// @version      0.2.2
+// @version      0.2.3
 // @author       zjh1943
 // @description  This userscript can crawl taobao subway campaign data every one hour.
 // @match        *.taobao.com/*
@@ -1491,7 +1491,7 @@ function createOnePageCrawler() {
 
                 sheet = XLSX.utils.json_to_sheet(data, option);
                 XLSX.utils.book_append_sheet(workbook, sheet, p.id);
-                timeStr = moment().format('YYYY-MM-DD_hh-mm-ss');
+                timeStr = moment().format('YYYY-MM-DD_HH-mm-ss');
                 prefix = p.id;
                 XLSX.writeFile(workbook, "".concat(prefix, "_").concat(timeStr, ".xls"));
 
@@ -1676,7 +1676,7 @@ function _downloadData() {
             break;
 
           case 17:
-            timeStr = moment().format('YYYY-MM-DD_hh-mm-ss');
+            timeStr = moment().format('YYYY-MM-DD_HH-mm-ss');
             prefix = tables.length === 1 ? tables[0] : 'AntCrawler';
             XLSX.writeFile(workbook, "".concat(prefix, "_").concat(timeStr, ".xls"));
 

@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Taobao Subway Crawler
-// @version      0.2.2
+// @version      0.2.3
 // @author       zjh1943
 // @description  This userscript can crawl taobao subway campaign data every one hour.
 // @match        *.taobao.com/*

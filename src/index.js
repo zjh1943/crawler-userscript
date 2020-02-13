@@ -159,7 +159,7 @@ function createOnePageCrawler() {
             const sheet = XLSX.utils.json_to_sheet(data, option);
             XLSX.utils.book_append_sheet(workbook, sheet, p.id);
         
-            const timeStr = moment().format('YYYY-MM-DD_hh-mm-ss');
+            const timeStr = moment().format('YYYY-MM-DD_HH-mm-ss');
             const prefix = p.id;
             XLSX.writeFile(workbook, `${prefix}_${timeStr}.xls`)
 
@@ -286,7 +286,7 @@ async function downloadData(clearAfterDownload = false) {
         XLSX.utils.book_append_sheet(workbook, sheet, tableName);
     }
 
-    const timeStr = moment().format('YYYY-MM-DD_hh-mm-ss');
+    const timeStr = moment().format('YYYY-MM-DD_HH-mm-ss');
     const prefix = tables.length === 1 ? tables[0] : 'AntCrawler';
     XLSX.writeFile(workbook, `${prefix}_${timeStr}.xls`)
 
